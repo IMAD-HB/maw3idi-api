@@ -26,6 +26,21 @@ export const getDashboardStats = async (req, res, next) => {
   }
 };
 
+export const getAllProviders = async (req, res, next) => {
+  try {
+    const providers = await User.find({
+      role: "provider",
+    }).select("-password");
+
+    res.status(200).json({
+      success: true,
+      providers,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const approveProvider = async (req, res, next) => {
   try {
     const provider = await User.findById(req.params.id);
