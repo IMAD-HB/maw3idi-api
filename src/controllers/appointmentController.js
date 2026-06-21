@@ -23,6 +23,7 @@ export const createAppointment = async (req, res, next) => {
     }
 
     const appointmentDate = new Date(date);
+    appointmentDate.setHours(0, 0, 0, 0);
 
     const dayOfWeek = appointmentDate.getDay();
 
@@ -39,12 +40,19 @@ export const createAppointment = async (req, res, next) => {
       throw new AppError("Provider unavailable on this day", 400);
     }
 
-    const existingAppointment = await Appointment.findOne({
+    const existingAppointments = await Appointment.find({
       provider,
       date: appointmentDate,
-      startTime,
       status: "scheduled",
     });
+
+    const isOverlapping = existingAppointments.some((appt) => {
+      return !(endTime <= appt.startTime || startTime >= appt.endTime);
+    });
+
+    if (isOverlapping) {
+      throw new AppError("Time slot overlaps with existing booking", 409);
+    }
 
     if (existingAppointment) {
       throw new AppError("Slot already booked", 409);
@@ -67,6 +75,7 @@ export const createAppointment = async (req, res, next) => {
       date: appointmentDate,
       startTime,
       endTime,
+      status: "scheduled",
     });
 
     res.status(201).json({
