@@ -17,12 +17,21 @@ app.use(helmet());
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://maw3idi-app.vercel.app/",
+  "https://maw3idi-app.vercel.app",
 ];
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      // allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   }),
 );
