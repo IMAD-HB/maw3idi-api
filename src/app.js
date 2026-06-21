@@ -15,7 +15,10 @@ const app = express();
 
 app.use(helmet());
 
-const allowedOrigins = ["http://localhost:5173"];
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://maw3idi-app.vercel.app/",
+];
 
 app.use(
   cors({
